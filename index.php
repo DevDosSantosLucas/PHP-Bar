@@ -152,13 +152,13 @@
 
                 <div class="reservation-form small-12 columns no-padding">
 
-                    <form>
+                    <form action="index.php" method="post">
 
                         <div class="form-part1 small-12 large-8 xlarge-7 columns no-padding">
                     
-                            <input type="text" name="nome" class="field" placeholder="Nome completo"/>
+                            <input type="text" name="nome" class="field" placeholder="Nome completo" required/>
                             
-                            <input type="text" name="email" class="field" placeholder="E-mail"/>
+                            <input type="text" name="email" class="field" placeholder="E-mail" required/>
                             
                             <textarea type="text" name="mensagem" class="field" placeholder="Mensagem"></textarea>
 
@@ -166,11 +166,11 @@
                         </div>
 
                         <div class="form-part2 small-12 large-3 xlarge-3 end columns no-padding">
-                            <input type="text" name="telefone" class="field" placeholder="Telefone"/>
+                            <input type="text" name="telefone" class="field" placeholder="Telefone" required/>
                             
-                            <input type="datetime-local" name="data" class="field" placeholder="Data e hora"/>
+                            <input type="datetime-local" name="data" class="field" placeholder="Data e hora" required/>
 
-                            <input type="text" name="data" class="field" placeholder="Número de pessoas"/>
+                            <input type="text" name="num_pessoas" class="field" placeholder="Número de pessoas" required/>
 
                             <input type="submit" name="submit" value="Reservar"/>
 
@@ -178,6 +178,111 @@
 
 
                     </form>
+
+                    <?php
+                        function clean_input($input){
+                            $input = trim($input);
+                            $input = stripslashes($input);
+                            $input = htmlspecialchars($input);
+
+                            return $input;
+                        }
+                        
+                        if($_SERVER['REQUEST_METHOD'] =='POST'){
+                            // echo '<pre>';
+                            // print_r($_POST);
+                            // echo '</pre>';
+                            $nome = $_POST['nome'];
+                            $email = $_POST['email'];
+                            $mensagem = $_POST['mensagem'];
+                            $telefone = $_POST['telefone'];
+                            $data = $_POST['data'];
+                            $num_pessoas = $_POST['num_pessoas'];
+                   
+                        $nome = clean_input($nome);
+                        $email = clean_input($email);
+                        $mensagem = clean_input($mensagem);
+                        $telefone = clean_input($telefone);
+                        $data = clean_input($data);
+                        $num_pessoas = clean_input($num_pessoas);
+
+    
+                    }
+                
+                    // Inserir Arquivos do PHPMailer
+                    require 'phpmailer/Exception.php';
+                    require 'phpmailer/PHPMailer.php';
+                    require 'phpmailer/SMTP.php';
+
+                    // Usar as classes sem o namespace
+                    use PHPMailer\PHPMailer\PHPMailer;
+                    use PHPMailer\PHPMailer\Exception;
+
+                    // Criação do Objeto da Classe PHPMailer
+                    $mail = new PHPMailer(true); 
+
+
+                    try {
+                        
+                        //Retire o comentário abaixo para soltar detalhes do envio 
+                        // $mail->SMTPDebug = 2;                                
+                        
+                        // Usar SMTP para o envio
+                        //$mail->isSMTP();                                      
+
+                        // Detalhes do servidor (No nosso exemplo é o Google)
+                        $mail->Host = 'smtp.gmail.com';
+
+                        // Permitir autenticação SMTP
+                        $mail->SMTPAuth = true;                               
+
+                        // Nome do usuário
+                        $mail->Username = 'barphp@gmail';        
+                        // Senha do E-mail         
+                        $mail->Password = '123#phpbar';                           
+                        // Tipo de protocolo de segurança
+                        $mail->SMTPSecure = 'tls';   
+
+                        // Porta de conexão com o servidor                        
+                        $mail->Port = 587;
+
+                        
+                        // Garantir a autenticação com o Google
+                        $mail->SMTPOptions = array(
+                            'ssl' => array(
+                                'verify_peer' => false,
+                                'verify_peer_name' => false,
+                                'allow_self_signed' => true
+                            )
+                        );
+
+                        // Remetente
+                        $mail->setFrom('from@example.com', 'Mailer');
+                        
+                        // Destinatário
+                        $mail->addAddress('barphp@gmail.com', 'PHP Bar');
+
+                        // Conteúdo
+
+                        // Define conteúdo como HTML
+                        $mail->isHTML(true);                                  
+
+                        // Assunto
+                        $mail->Subject = 'Insira o assunto';
+                        $mail->Body    = 'Insira o texto do e-mail';
+                        $mail->AltBody = 'Formato alternativo em texto puro para emails que não aceitam HTML';
+
+                        // Enviar E-mail
+                        $mail->send();
+                        echo 'Mensagem enviada com sucesso';
+                    } catch (Exception $e) {
+                        echo 'A mensagem não foi enviada pelo seguinte motivo: ', $mail->ErrorInfo;
+                    }
+            
+
+
+
+                    ?>
                 </div>
 
             </div>
